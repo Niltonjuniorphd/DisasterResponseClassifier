@@ -1,5 +1,3 @@
-*.db
 .env
 .vscode
-*.pkl
 .DS_Store
