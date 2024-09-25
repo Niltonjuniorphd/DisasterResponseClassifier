@@ -36,19 +36,19 @@ def tokenize_old(text):
     return clean_tokens
 
 
-def tokenize(text, lemmatizer = WordNetLemmatizer(), stop_words = stopwords.words("english")):
+def tokenize(text, lemmatizer=WordNetLemmatizer(), stop_words=stopwords.words("english")):
     url_regex = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    text = re.sub(url_regex,' ', text)
+    text = re.sub(url_regex, ' ', text)
     text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
     tokens = word_tokenize(text)
-    
+
     tokens = [w for w in tokens if w not in stop_words]
     tokens = [lemmatizer.lemmatize(w) for w in tokens]
     tokens = [lemmatizer.lemmatize(w, pos='v') for w in tokens]
 
     clean_tokens = [w.strip() for w in tokens]
     clean_tokens = [w for w in tokens if len(w) > 2]
-    
+
     return clean_tokens
 
 
@@ -58,8 +58,8 @@ inspector = inspect(engine)  # eu
 table_names = inspector.get_table_names()  # eu
 print(f'table_names => {table_names}')
 df = pd.read_sql_table(table_names[0], engine)  # eu
-df_metrics = pd.read_csv('../models/metrics_results.csv')
-
+df_metrics = pd.read_csv('../models/metrics_results.csv', index_col=0)
+print(f'df_metrics = {df_metrics.index}')
 # load model
 model = joblib.load("../models/classifier.pkl")
 
@@ -76,14 +76,15 @@ def index():
     genre_names = list(genre_counts.index)
     related_names = list(related_counts.index)
 
-    df_target = df.drop(['id', 'message', 'original', 'genre', 'related'], axis=1)
+    df_target = df.drop(['id', 'message', 'original',
+                        'genre', 'related'], axis=1)
     df_target = df_target.astype(int)
 
     df_target_means = df_target.mean()
     df_target_names = list(df_target_means.index)
 
     df_metrics_values = df_metrics['recall'].values
-    df_metrics_names = list(df_target_means.index)
+    df_metrics_names = df_metrics.index
 
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
