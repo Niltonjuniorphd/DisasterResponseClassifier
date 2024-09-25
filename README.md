@@ -34,11 +34,17 @@ The objective of this project is to build a machine learning pipeline that class
    ```
 3. Create a virtual environment and install the dependencies:
    ```bash
-   python -m venv .env
-   source .env/bin/activate  # For Linux/Mac
-   # OR
-   .env\Scripts\activate  # For Windows
+   # For Linux/Mac
+   python3 -m venv .env
+   source .env/bin/activate  
    ```
+
+   ```bash
+   # For Windows (Recomended)
+   python -m venv .env
+   .env\Scripts\activate  
+   ```
+
 4. Install required packages:
    ```bash
    pip install -r requirements.txt --no-cache-dir
@@ -74,7 +80,7 @@ Follow these steps to process the data and train the model:
    ```
    - Training may take around 30 seconds.
    - The trained model will be saved as `classifier.pkl` in the `models/` directory.
-   - HINT: To perform cross-validation, modify `train_classifier.py` to call `build_model_CV()` instead of `build_model()`. Change `build_model_CV()` parameters in `train_classifier.py`. WARNING: This can take a long time to run. You can adjust the number of features in the pipeline to reduce training time changing the *CountVectorizer* `max_features=` parameter in the `build_model_CV()` function (presetted to 500).
+   - HINT: To perform GridSearchCV to tune the model, modify `train_classifier.py` to call `build_model_CV()` instead of `build_model()`. Change `build_model_CV()` parameters in `train_classifier.py`. WARNING: This can take a long time to run. You can adjust the number of features in the pipeline to reduce training time changing the *CountVectorizer* `max_features=` parameter in the `build_model_CV()` function (presetted to 500).
 
 3. **Run the Web Application**: Launch the Flask app.
    - Ensure you are in the project directory.
@@ -85,7 +91,14 @@ Follow these steps to process the data and train the model:
    ```
    - Access the app at `http://localhost:3001/` (the actual link will be displayed in the terminal).
    - You can input new messages or use the pre-existing messages from the database for classification.
-   - The app will display the classification results.
+   - The aplication will display the bar graphs to visualize the data properties in the first page:
+   -HINT: scroll down to see all the visualizations.
+
+![Performance](data/first_page.png)
+
+   - After insert the mensage (text) in the text fiel and clik in the green button (or press ENTER), the aplication will display the classification results in a new visualization in the same page:
+
+![Performance](data/app_sample.png)
 
 ## Details
 
