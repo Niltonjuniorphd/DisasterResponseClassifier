@@ -80,7 +80,7 @@ Follow these steps to process the data and train the model:
    ```
    - Training may take around 30 seconds.
    - The trained model will be saved as `classifier.pkl` in the `models/` directory.
-   - HINT: To perform GridSearchCV to tune the model, modify `train_classifier.py` to call `build_model_CV()` instead of `build_model()`. Change `build_model_CV()` parameters in `train_classifier.py`. WARNING: This can take a long time to run. You can adjust the number of features in the pipeline to reduce training time changing the *CountVectorizer* `max_features=` parameter in the `build_model_CV()` function (presetted to 500).
+   - HINT: To bypass GridSearchCV to tune the model and use a preset parameters, modify `train_classifier.py` to call `build_model_GsCV()` instead of `build_model()`. 
 
 3. **Run the Web Application**: Launch the Flask app.
    - Ensure you are in the project directory.

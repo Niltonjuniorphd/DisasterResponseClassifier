@@ -8,47 +8,79 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
-# from sklearn.externals import joblib
 import joblib
 from sqlalchemy import create_engine, inspect
 import re
 from nltk.corpus import stopwords
+from nltk.corpus import words
+
+
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('words')
 
 
 app = Flask(__name__)
 
 
-def tokenize_old(text):
-    text = re.sub(r"[^a-zA-Z0-9]", " ", text)
-    tokens = word_tokenize(text.lower())
-    # print(tokens)
-    lemmatizer = WordNetLemmatizer()
+def tokenize(text, 
+             lemmatizer=WordNetLemmatizer(), 
+             stop_words=stopwords.words("english"), 
+             valid_words=set(words.words())):
+    """
+    Tokenize and clean input text for NLP tasks.
 
-    clean_tokens = []
-    for tok in tokens:
-        if len(tok) > 3:
-            clean_tok = lemmatizer.lemmatize(tok).strip()
-            # print(clean_tok)
-            clean_tokens.append(clean_tok)
-        else:
-            pass
+    This function performs the following steps:
+    1. Removes URLs.
+    2. Normalizes text to lowercase and removes non-alphabetic characters.
+    3. Tokenizes the text into individual words.
+    4. Lemmatizes tokens with different parts of speech (noun, verb, adjective, etc.).
+    5. Filters tokens by word length and valid words dictionary.
+    6. Removes stop words from the final token list.
 
-    return clean_tokens
+    Args:
+    text (str): Input string to be tokenized.
+    lemmatizer (WordNetLemmatizer): Lemmatizer to reduce words to their base form.
+    stop_words (list): List of stop words to exclude from tokens.
+    valid_words (set): Set of valid English words to keep in tokens.
 
-
-def tokenize(text, lemmatizer=WordNetLemmatizer(), stop_words=stopwords.words("english")):
+    Returns:
+    clean_tokens (list): List of processed, cleaned tokens.
+    """
+    # Regex to identify and remove URLs
     url_regex = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    
+    # Remove URLs from the text
     text = re.sub(url_regex, ' ', text)
+    
+    # Remove non-alphabetic characters and normalize to lowercase
     text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
-    tokens = word_tokenize(text)
-
-    tokens = [w for w in tokens if w not in stop_words]
-    tokens = [lemmatizer.lemmatize(w) for w in tokens]
+    
+    # Tokenize the cleaned, lowercase text into words
+    tokens = word_tokenize(text.lower(), language='english')
+    
+    # Additional cleaning of tokens: strip whitespace and normalize case
+    tokens = [w.lower().strip() for w in tokens]
+    
+    # Lemmatize tokens with different parts of speech: noun, verb, adjective, etc.
+    tokens = [lemmatizer.lemmatize(w, pos='n') for w in tokens]
     tokens = [lemmatizer.lemmatize(w, pos='v') for w in tokens]
-
-    clean_tokens = [w.strip() for w in tokens]
-    clean_tokens = [w for w in tokens if len(w) > 2]
-
+    tokens = [lemmatizer.lemmatize(w, pos='a') for w in tokens]
+    tokens = [lemmatizer.lemmatize(w, pos='r') for w in tokens]
+    tokens = [lemmatizer.lemmatize(w, pos='s') for w in tokens]
+    
+    # Filter out tokens that are too short (< 3 characters) or too long (> 10 characters)
+    tokens = [w for w in tokens if len(w) > 2]
+    tokens = [w for w in tokens if len(w) <= 10]
+    
+    # Keep only tokens found in the valid words set
+    tokens = [w for w in tokens if w.lower() in valid_words]
+    
+    # Remove stop words from the token list
+    clean_tokens = [w for w in tokens if w not in stop_words]
+    
     return clean_tokens
 
 
@@ -77,7 +109,7 @@ def index():
     related_names = list(related_counts.index)
 
     df_target = df.drop(['id', 'message', 'original',
-                        'genre', 'related'], axis=1)
+                        'genre'], axis=1)
     df_target = df_target.astype(int)
 
     df_target_means = df_target.mean()

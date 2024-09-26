@@ -126,7 +126,7 @@ def tokenize(text,
 
 
 
-def build_model():
+def build_model_no_GsCV():
     """
     Build a machine learning pipeline for multi-output classification.
 
@@ -162,7 +162,7 @@ def build_model():
     return pipeline
 
 
-def build_model_CV():
+def build_model():
     """
     Build a machine learning pipeline with hyperparameter tuning using GridSearchCV.
 
@@ -190,9 +190,9 @@ def build_model_CV():
 
     # Define hyperparameter grid for GridSearchCV
     parameters = {
-        'mclf__estimator__max_depth': [15, 25, 75],          # Maximum depth of the tree
-        'mclf__estimator__min_samples_split': [2, 5, 10],    # Minimum samples required to split an internal node
-        'mclf__estimator__min_samples_leaf': [5, 10, 20],     # Minimum samples required to be at a leaf node
+        'mclf__estimator__max_depth': [15, 25],          # Maximum depth of the tree
+        'mclf__estimator__min_samples_split': [2, 5],    # Minimum samples required to split an internal node
+        'mclf__estimator__min_samples_leaf': [5, 10],     # Minimum samples required to be at a leaf node
     }
     
     # Create a GridSearchCV object to optimize hyperparameters
@@ -284,6 +284,7 @@ def save_model(model, model_filepath):
 
 
 
+
 def main():
     """
     Main entry point for the disaster response classifier training script.
@@ -300,7 +301,7 @@ def main():
     """
     if len(sys.argv) == 3:
         # Unpack command-line arguments for database and model file paths
-        database_filepath, model_filepath = '../data/DisasterResponse.db', '../models/classifier.pkl'
+        database_filepath, model_filepath = sys.argv[1:]
 
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
